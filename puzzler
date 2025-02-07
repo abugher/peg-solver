@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-import PuzzleSolver
+import PegSolver
 
 
-puzzle = PuzzleSolver.Puzzle()
+puzzle = PegSolver.Puzzle()
 solutions = puzzle.solve()
 print("Solutions found:  " + str(len(solutions)))
 
