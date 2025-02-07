@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import copy
+
 class Puzzle:
     def __init__(self):
         self.rows = []
@@ -13,60 +15,50 @@ class Puzzle:
         for max in reversed(range(0, self.size)):
             line = ""
             for i in range(0, self.size - max):
-                #line = line + "     "
                 line = line + " "
             for y in range(0, max + 1):
                 x = max - y
                 if True == self.rows[x][y]:
-                    #line = line + "[" + str(x) + ", " + str(y) + "]     "
                     line = line + "x "
                 else:
-                    #line = line + "-----     "
                     line = line + "o "
             print(line)
-        return True
-
-    def pluck(self, xy):
-        [x, y] = xy
-        if 0 > x or 0 > y or 4 < (x + y):
-            return False
-        self.rows[x][y] = False
         return True
 
     def move(self, xy, direction):
         [x, y] = xy
         if not True == self.rows[x][y]:
-            print("Starting peg empty:  [" + str(x) + ", " + str(y) + "]")
             return False
         match direction:
-            case 'upRight':
+            case "pluck":
+                if True == self.rows[x][y]:
+                    self.rows[x][y] = False
+                return True
+            case "upRight":
                 [newX, newY] = self.upRight(self.upRight([x, y]))
                 [middleX, middleY] = self.upRight([x, y])
-            case 'upLeft':
+            case "upLeft":
                 [newX, newY] = self.upLeft(self.upLeft([x, y]))
                 [middleX, middleY] = self.upLeft([x, y])
-            case 'downRight':
+            case "downRight":
                 [newX, newY] = self.downRight(self.downRight([x, y]))
                 [middleX, middleY] = self.downRight([x, y])
-            case 'downLeft':
+            case "downLeft":
                 [newX, newY] = self.downLeft(self.downLeft([x, y]))
                 [middleX, middleY] = self.downLeft([x, y])
-            case 'right':
+            case "right":
                 [newX, newY] = self.right(self.right([x, y]))
                 [middleX, middleY] = self.right([x, y])
-            case 'left':
+            case "left":
                 [newX, newY] = self.left(self.left([x, y]))
                 [middleX, middleY] = self.left([x, y])
-            case '_':
+            case _:
                 return False
         if 0 > newX or 0 > newY or 4 < newX + newY:
-            print("New hole out of range:  [" + str(newX) + ", " + str(newY) + "]")
             return False
         if True == self.rows[newX][newY]:
-            print("New hole occupied:  [" + str(newX) + ", " + str(newY) + "]")
             return False
         if False == self.rows[middleX][middleY]:
-            print("Middle peg empty:  [" + str(middleX) + ", " + str(middleY) + "]")
             return False
 
         self.rows[x][y] = False
@@ -74,6 +66,50 @@ class Puzzle:
         self.rows[newX][newY] = True
 
         return True
+    
+    def solve(self, parentHistory=[]):
+        solutions = []
+        match len(parentHistory):
+            case 0:
+                for x in range(0, self.size):
+                    for y in range(0, self.size - x):
+                        newPuzzle = copy.deepcopy(self)
+                        if not newPuzzle.move([x, y], "pluck"):
+                            return False
+                        for solution in newPuzzle.solve([[x, y, "pluck"]]):
+                            solutions.append(solution)
+            case 14:
+                solutions.append(parentHistory)
+                print()
+                #print("Solution #" + str(len(solutions)) + ":")
+                newPuzzle = Puzzle()
+                newPuzzle.replay(parentHistory)
+                self.summarize(parentHistory)
+            case _:
+                for x in range(0, self.size):
+                    for y in range(0, self.size - x):
+                        for direction in [ "upRight", "upLeft", "downRight", "downLeft", "right", "left" ]:
+                            newPuzzle = copy.deepcopy(self)
+                            if newPuzzle.move([x, y], direction):
+                                newHistory = copy.deepcopy(parentHistory)
+                                newHistory.append([x, y, direction])
+                                for solution in newPuzzle.solve(newHistory):
+                                    solutions.append(solution)
+        return solutions
+
+    def replay(self, history):
+        newPuzzle = copy.deepcopy(self)
+        for step in history:
+            [x, y, direction] = step
+            newPuzzle.display()
+            if not newPuzzle.move([x, y], direction):
+                return False
+        newPuzzle.display()
+
+    def summarize(self, history):
+        for step in history:
+            [x, y, direction] = step
+            print(str(x) + "," + str(y) + "," + direction)
 
     def upRight(self, xy):
         [x, y] = xy

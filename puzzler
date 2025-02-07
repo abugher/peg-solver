@@ -2,28 +2,9 @@
 
 import PuzzleSolver
 
+
 puzzle = PuzzleSolver.Puzzle()
-
-if not puzzle.display():
-    exit(1)
-
-if not puzzle.pluck([0, 0]):
-    exit(1)
-
-if not puzzle.display():
-    exit(1)
-
-if not puzzle.pluck([1, 1]):
-    exit(1)
-
-if not puzzle.display():
-    exit(1)
-
-if not puzzle.move([2, 0], "downLeft"):
-    print("Move failed.")
-    exit(1)
-
-if not puzzle.display():
-    exit(1)
+solutions = puzzle.solve()
+print("Solutions found:  " + str(len(solutions)))
 
 exit(0)
