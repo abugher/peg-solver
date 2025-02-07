@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 import copy
 
 class Puzzle:
@@ -67,34 +68,50 @@ class Puzzle:
 
         return True
     
-    def solve(self, parentHistory=[]):
+    def solve(self, parentHistory = [], all = False, output = False):
         solutions = []
+        #print("DEBUG:  output:  '" + output + "'")
+        #print("DEBUG:  all:  '" + str(all) + "'")
         match len(parentHistory):
             case 0:
                 for x in range(0, self.size):
+                    if 0 < len(solutions) and not True == all:
+                        break
                     for y in range(0, self.size - x):
+                        if 0 < len(solutions) and not True == all:
+                            break
                         newPuzzle = copy.deepcopy(self)
                         if not newPuzzle.move([x, y], "pluck"):
                             return False
-                        for solution in newPuzzle.solve([[x, y, "pluck"]]):
+                        for solution in newPuzzle.solve(parentHistory = [[x, y, "pluck"]], all = all, output = output):
+                            if 0 < len(solutions) and not True == all:
+                                break
                             solutions.append(solution)
             case 14:
                 solutions.append(parentHistory)
-                print()
-                #print("Solution #" + str(len(solutions)) + ":")
-                newPuzzle = Puzzle()
-                newPuzzle.replay(parentHistory)
-                self.summarize(parentHistory)
+                if True == output:
+                    print()
+                    newPuzzle = Puzzle()
+                    newPuzzle.replay(parentHistory)
+                    self.summarize(parentHistory)
             case _:
                 for x in range(0, self.size):
+                    if 0 < len(solutions) and not True == all:
+                        break
                     for y in range(0, self.size - x):
+                        if 0 < len(solutions) and not True == all:
+                            break
                         for direction in [ "upRight", "upLeft", "downRight", "downLeft", "right", "left" ]:
+                            if 0 < len(solutions) and not True == all:
+                                break
                             newPuzzle = copy.deepcopy(self)
                             if newPuzzle.move([x, y], direction):
                                 newHistory = copy.deepcopy(parentHistory)
                                 newHistory.append([x, y, direction])
-                                for solution in newPuzzle.solve(newHistory):
+                                for solution in newPuzzle.solve(parentHistory = newHistory, all = all, output = output):
                                     solutions.append(solution)
+                                    if not True == all:
+                                        break
         return solutions
 
     def replay(self, history):
