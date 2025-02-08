@@ -1,10 +1,15 @@
 #!/usr/bin/python3
 
+import sys
 import PegPuzzle
 
 
 puzzle = PegPuzzle.Puzzle()
-solutions = puzzle.solve(parentHistory = [], all = False , output = True)
+if 1 < len(sys.argv):
+    if "-a" == sys.argv[1].strip():
+        solutions = puzzle.solve(parentHistory = [], all = True, output = True)
+else:
+    solutions = puzzle.solve(parentHistory = [], all = False , output = True)
 print("Solutions found:  " + str(len(solutions)))
 
 exit(0)
